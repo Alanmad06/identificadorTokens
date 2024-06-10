@@ -6,9 +6,10 @@ export class Lexer {
   constructor(input) {
     this.input = input;
     this.tokens = { ...tokens };
+    this.currentState = "";
   }
 
-  isLetter(ch) {
+  isAlpha(ch) {
     return (ch >= "a" && ch <= "z") || (ch >= "A" && ch <= "Z");
   }
 
@@ -17,7 +18,7 @@ export class Lexer {
   }
 
   isSpecialCharacter(ch) {
-    return !this.isLetter(ch) && !this.isNumber(ch);
+    return !this.isAlpha(ch) && !this.isNumber(ch);
   }
 
   isWhiteSpace(ch) {
@@ -99,173 +100,338 @@ export class Lexer {
   }
 
   startAlgorithm() {
-    let currentState = "START";
+    this.currentState = "START";
     let token = "";
     let index = 0;
 
     while (index < this.input.length) {
       const char = this.input[index];
       if (this.isWhiteSpace(char)) {
-        this.analyzeToken(token, currentState);
+        this.analyzeToken(token, this.currentState);
         token = "";
-        currentState = "START";
+        this.currentState = "START";
       } else {
-        currentState = this.Advance(currentState, char);
+        this.Advance(char);
         token += char;
       }
       index++;
     }
 
     if (token) {
-      this.analyzeToken(token, currentState);
+      this.analyzeToken(token, this.currentState);
     }
 
     return this.tokens;
   }
 
-  Advance(currentState, inputChar) {
-    switch (currentState) {
+  Advance(inputChar) {
+    switch (this.currentState) {
       case "START":
-        if (this.isLetter(inputChar) || inputChar === "_") return "IDENTIFIER";
-        if (this.isNumber(inputChar)) return "INTEGER";
-        if (inputChar === '"') return "STRING_START";
-        if (inputChar === "-") return "ARITHMETIC_OPERATOR_MINUS";
-        if (inputChar === "+") return "ARITHMETIC_OPERATOR_PLUS";
-        if (inputChar === "/") return "ARITHMETIC_OPERATOR_DIV";
-        if (inputChar === "*") return "ARITHMETIC_OPERATOR_MUL";
-        if (inputChar === "%") return "ARITHMETIC_OPERATOR_MUL";
-        if (inputChar === "!") return "LOGICAL_OPERATOR_NOT";
-        if (inputChar === "&") return "LOGICAL_OPERATOR_AND";
-        if (inputChar === "|") return "LOGICAL_OPERATOR_OR";
-        if (inputChar === "=") return "ASSIGNMENT";
-        if (inputChar === "{" || inputChar === "}") return "BRACE";
-        if (inputChar === "(" || inputChar === ")") return "PARENTHESIS";
-        if (inputChar === "<" || inputChar === ">")
-          return "RELATIONAL_OPERATOR";
-
+        if (this.isAlpha(inputChar) || inputChar === "_") {
+          this.currentState = "IDENTIFIER";
+        } else if (this.isNumber(inputChar)) {
+          this.currentState = "INTEGER";
+        } else if (inputChar === '"') {
+          this.currentState = "STRING_START";
+        } else if (inputChar === "-") {
+          this.currentState = "ARITHMETIC_OPERATOR_MINUS";
+        } else if (inputChar === "+") {
+          this.currentState = "ARITHMETIC_OPERATOR_PLUS";
+        } else if (inputChar === "/") {
+          this.currentState = "ARITHMETIC_OPERATOR_DIV";
+        } else if (inputChar === "*") {
+          this.currentState = "ARITHMETIC_OPERATOR_MUL";
+        } else if (inputChar === "%") {
+          this.currentState = "ARITHMETIC_OPERATOR_MUL";
+        } else if (inputChar === "!") {
+          this.currentState = "LOGICAL_OPERATOR_NOT";
+        } else if (inputChar === "&") {
+          this.currentState = "LOGICAL_OPERATOR_AND";
+        } else if (inputChar === "|") {
+          this.currentState = "LOGICAL_OPERATOR_OR";
+        } else if (inputChar === "=") {
+          this.currentState = "ASSIGNMENT";
+        } else if (inputChar === "{" || inputChar === "}") {
+          this.currentState = "BRACE";
+        } else if (inputChar === "(" || inputChar === ")") {
+          this.currentState = "PARENTHESIS";
+        } else if (inputChar === "<" || inputChar === ">") {
+          this.currentState = "RELATIONAL_OPERATOR";
+        } else {
+          this.currentState = "ERR";
+        }
         break;
-
+  
       case "IDENTIFIER":
-        if (
-          this.isLetter(inputChar) ||
-          this.isNumber(inputChar) ||
-          inputChar === "_"
-        )
-          return "IDENTIFIER";
-        if (this.isSpecialCharacter(inputChar)) return "ERROR";
+        if (this.isAlpha(inputChar) || this.isNumber(inputChar) || inputChar === "_") {
+          this.currentState = "IDENTIFIER";
+        } else if (this.isSpecialCharacter(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "INTEGER":
-        if (this.isNumber(inputChar)) return "INTEGER";
-        if (inputChar === ".") return "DECIMAL_START";
-        if (this.isLetter(inputChar) || this.isSpecialCharacter(inputChar))
-          return "ERROR";
+        if (this.isNumber(inputChar)) {
+          this.currentState = "INTEGER";
+        } else if (inputChar === ".") {
+          this.currentState = "DECIMAL_START";
+        } else if (this.isAlpha(inputChar) || this.isSpecialCharacter(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "DECIMAL_START":
-        if (this.isNumber(inputChar)) return "DECIMAL";
-        if (this.isLetter(inputChar) || this.isSpecialCharacter(inputChar))
-          return "ERROR";
+        if (this.isNumber(inputChar)) {
+          this.currentState = "DECIMAL";
+        } else if (this.isAlpha(inputChar) || this.isSpecialCharacter(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "DECIMAL":
-        if (this.isNumber(inputChar)) return "DECIMAL";
-        if (this.isLetter(inputChar) || this.isSpecialCharacter(inputChar))
-          return "ERROR";
+        if (this.isNumber(inputChar)) {
+          this.currentState = "DECIMAL";
+        } else if (this.isAlpha(inputChar) || this.isSpecialCharacter(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "STRING_START":
-        return "STRING_CONTENT";
+        this.currentState = "STRING_CONTENT";
+        break;
+  
       case "STRING_CONTENT":
-        if (inputChar === '"') return "STRING";
-        if (!this.isWhiteSpace(inputChar)) return "STRING_CONTENT";
+        if (inputChar === '"') {
+          this.currentState = "STRING";
+        } else if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "STRING_CONTENT";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "STRING":
-        if (inputChar === '"') return "STRING";
-        if (!this.isWhiteSpace(inputChar)) return "STRING_CONTENT";
+        if (inputChar === '"') {
+          this.currentState = "STRING";
+        } else if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "STRING_CONTENT";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "ARITHMETIC_OPERATOR_PLUS":
-        if (inputChar === "+") return "INCREMENT";
-        if (!this.isWhiteSpace(inputChar)) return "ERROR";
+        if (inputChar === "+") {
+          this.currentState = "INCREMENT";
+        } else if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "INCREMENT":
-        if (!this.isWhiteSpace(inputChar)) return "ERROR";
+        if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "ARITHMETIC_OPERATOR_MUL":
-        if (!this.isWhiteSpace(inputChar)) return "ERROR";
+        if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "ARITHMETIC_OPERATOR_MINUS":
-        if (this.isNumber(inputChar)) return "INTEGER";
-        if (inputChar === "-") return "DECREMENT";
-        if (this.isLetter(inputChar) || this.isSpecialCharacter(inputChar))
-          return "ERROR";
+        if (this.isNumber(inputChar)) {
+          this.currentState = "INTEGER";
+        } else if (inputChar === "-") {
+          this.currentState = "DECREMENT";
+        } else if (this.isAlpha(inputChar) || this.isSpecialCharacter(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "DECREMENT":
-        if (!this.isWhiteSpace(inputChar)) return "ERROR";
+        if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
-
+  
       case "ARITHMETIC_OPERATOR_DIV":
-        if (inputChar === "*") return "MULTILINE_COMMENT_START";
-        if (inputChar === "/") return "LINE_COMMENT_START";
-        if (!this.isWhiteSpace(inputChar)) return "ERROR";
+        if (inputChar === "*") {
+          this.currentState = "MULTILINE_COMMENT_START";
+        } else if (inputChar === "/") {
+          this.currentState = "LINE_COMMENT_START";
+        } else if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "MULTILINE_COMMENT_START":
-        if (inputChar === "*") return "MULTILINE_COMMENT_END";
-        if (!this.isWhiteSpace(inputChar)) return "MULTILINE_COMMENT_START";
+        if (inputChar === "*") {
+          this.currentState = "MULTILINE_COMMENT_END";
+        } else if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "MULTILINE_COMMENT_START";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "MULTILINE_COMMENT_END":
-        if (inputChar === "*") return "MULTILINE_COMMENT_END";
-        if (inputChar === "/") return "MULTILINE_COMMENT";
-        if (!this.isWhiteSpace(inputChar)) return "MULTILINE_COMMENT_START";
+        if (inputChar === "*") {
+          this.currentState = "MULTILINE_COMMENT_END";
+        } else if (inputChar === "/") {
+          this.currentState = "MULTILINE_COMMENT";
+        } else if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "MULTILINE_COMMENT_START";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "MULTILINE_COMMENT":
-        if (!this.isWhiteSpace(inputChar)) return "ERROR";
+        if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "LINE_COMMENT_START":
-        if (!this.isWhiteSpace(inputChar)) return "LINE_COMMENT";
+        if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "LINE_COMMENT";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "LINE_COMMENT":
-        if (!this.isWhiteSpace(inputChar)) return "LINE_COMMENT";
+        if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "LINE_COMMENT";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "LOGICAL_OPERATOR_NOT":
-        if (inputChar === "=") return "RELATIONAL_OPERATOR_EQUAL";
-        if (!this.isWhiteSpace(inputChar)) return "ERROR";
+        if (inputChar === "=") {
+          this.currentState = "RELATIONAL_OPERATOR_EQUAL";
+        } else if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "RELATIONAL_OPERATOR":
-        if (inputChar === "=") return "RELATIONAL_OPERATOR_EQUAL";
-        if (!this.isWhiteSpace(inputChar)) return "ERROR";
+        if (inputChar === "=") {
+          this.currentState = "RELATIONAL_OPERATOR_EQUAL";
+        } else if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "ASSIGNMENT":
-        if (inputChar === "=") return "RELATIONAL_OPERATOR_EQUAL";
-        if (!this.isWhiteSpace(inputChar)) return "ERROR";
+        if (inputChar === "=") {
+          this.currentState = "RELATIONAL_OPERATOR_EQUAL";
+        } else if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "RELATIONAL_OPERATOR_EQUAL":
-        if (!this.isWhiteSpace(inputChar)) return "ERROR";
+        if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "LOGICAL_OPERATOR_AND":
-        if (inputChar === "&") return "LOGICAL_OPERATOR_AND_AND";
-        if (!this.isWhiteSpace(inputChar)) return "ERROR";
+        if (inputChar === "&") {
+          this.currentState = "LOGICAL_OPERATOR_AND_AND";
+        } else if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "LOGICAL_OPERATOR_OR":
-        if (inputChar === "|") return "LOGICAL_OPERATOR_OR_OR";
-        if (!this.isWhiteSpace(inputChar)) return "ERROR";
+        if (inputChar === "|") {
+          this.currentState = "LOGICAL_OPERATOR_OR_OR";
+        } else if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "LOGICAL_OPERATOR_AND_AND":
-        if (!this.isWhiteSpace(inputChar)) return "ERROR";
+        if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "LOGICAL_OPERATOR_OR_OR":
-        if (!this.isWhiteSpace(inputChar)) return "ERROR";
+        if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "BRACE":
-        if (!this.isWhiteSpace(inputChar)) return "ERROR";
+        if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
+  
       case "PARENTHESIS":
-        if (!this.isWhiteSpace(inputChar)) return "ERROR";
+        if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
         break;
-
-      case "ERROR":
-        return "ERROR";
+  
+      case "ERR":
+        this.currentState = "ERR";
+        break;
+  
       default:
-        return "ERROR";
+        this.currentState = "ERR";
+        break;
     }
-    return "ERROR";
   }
+  
 
   incrementInput(tokens, tokenType) {
     tokens[tokenType]++;
