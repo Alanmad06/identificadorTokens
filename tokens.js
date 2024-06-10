@@ -12,7 +12,7 @@ export const tokens = {
   "string": 0,
   "comment": 0,
   "lineComment": 0,
-  "parentheses": 0,
+  "parenthesis": 0,
   "braces": 0,
   "errors": 0
 };
