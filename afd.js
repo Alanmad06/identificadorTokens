@@ -227,6 +227,32 @@ export class Lexer {
           this.currentState = "START";
         }
         break;
+        case "DECREMENT":
+        if (!this.isWhiteSpace(inputChar)) {
+          this.currentState = "ERR";
+        } else {
+          this.currentState = "START";
+        }
+        break;
+        case "INCREMENT":
+          if (!this.isWhiteSpace(inputChar)) {
+            this.currentState = "ERR";
+          } else {
+            this.currentState = "START";
+          }
+          break;
+
+      case "ARITHMETIC_OPERATOR_MINUS":
+            if (this.isNumber(inputChar)) {
+              this.currentState = "INTEGER";
+            } else if (inputChar === "-") {
+              this.currentState = "DECREMENT";
+            } else if (this.isAlpha(inputChar) || this.isSpecialCharacter(inputChar)) {
+              this.currentState = "ERR";
+            } else {
+              this.currentState = "START";
+            }
+            break;
   
       case "ARITHMETIC_OPERATOR_PLUS":
         if (inputChar === "+") {
@@ -238,35 +264,7 @@ export class Lexer {
         }
         break;
   
-      case "INCREMENT":
-        if (!this.isWhiteSpace(inputChar)) {
-          this.currentState = "ERR";
-        } else {
-          this.currentState = "START";
-        }
-        break;
-  
       case "ARITHMETIC_OPERATOR_MUL":
-        if (!this.isWhiteSpace(inputChar)) {
-          this.currentState = "ERR";
-        } else {
-          this.currentState = "START";
-        }
-        break;
-  
-      case "ARITHMETIC_OPERATOR_MINUS":
-        if (this.isNumber(inputChar)) {
-          this.currentState = "INTEGER";
-        } else if (inputChar === "-") {
-          this.currentState = "DECREMENT";
-        } else if (this.isAlpha(inputChar) || this.isSpecialCharacter(inputChar)) {
-          this.currentState = "ERR";
-        } else {
-          this.currentState = "START";
-        }
-        break;
-  
-      case "DECREMENT":
         if (!this.isWhiteSpace(inputChar)) {
           this.currentState = "ERR";
         } else {
