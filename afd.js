@@ -69,6 +69,7 @@ export class Lexer {
 
         case "ARITHMETIC_OPERATOR_PLUS":
         case "ARITHMETIC_OPERATOR_MUL":
+        case "ARITHMETIC_OPERATOR_MOD":
         case "ARITHMETIC_OPERATOR_MINUS":
         case "ARITHMETIC_OPERATOR_DIV":
           this.incrementInput(this.tokens, "arithmeticOperators");
@@ -142,7 +143,7 @@ export class Lexer {
         } else if (inputChar === "*") {
           this.currentState = "ARITHMETIC_OPERATOR_MUL";
         } else if (inputChar === "%") {
-          this.currentState = "ARITHMETIC_OPERATOR_MUL";
+          this.currentState = "ARITHMETIC_OPERATOR_MOD";
         } else if (inputChar === "!") {
           this.currentState = "LOGICAL_OPERATOR_NOT";
         } else if (inputChar === "&") {
@@ -271,6 +272,14 @@ export class Lexer {
           this.currentState = "START";
         }
         break;
+      
+      case "ARITHMETIC_OPERATOR_MOD":
+          if (!this.isWhiteSpace(inputChar)) {
+            this.currentState = "ERR";
+          } else {
+            this.currentState = "START";
+          }
+          break;
   
       case "ARITHMETIC_OPERATOR_DIV":
         if (inputChar === "*") {

@@ -8,7 +8,8 @@ export const finalStates = [
     "LINE_COMMENT", // //
     "ASSIGNMENT", // =
     "ARITHMETIC_OPERATOR_PLUS", // +
-    "ARITHMETIC_OPERATOR_MUL", // *  % 
+    "ARITHMETIC_OPERATOR_MUL", // *  
+     "ARITHMETIC_OPERATOR_MOD", // % 
     "ARITHMETIC_OPERATOR_MINUS", // -
     "ARITHMETIC_OPERATOR_DIV", //  /
     "RELATIONAL_OPERATOR",  // <>
