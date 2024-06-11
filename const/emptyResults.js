@@ -1,4 +1,4 @@
-export const tokens = {
+export const emptyResults = {
   "keywords": 0,
   "identifiers": 0,
   "relationalOperators": 0,

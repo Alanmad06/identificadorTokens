@@ -21,7 +21,7 @@ document.getElementById('iniciar').addEventListener('click', tokenizarArchivo);
 function tokenizarArchivo() {
     const contenido = document.getElementById('contenido').value;
     const lexer = new Lexer(contenido);
-    const tokenOutput = lexer.tokenize();
+    const tokenOutput = lexer.start();
     document.getElementById('resultado').value = tokenOutput; 
 }
 

@@ -1,5 +1,5 @@
 import { keywords } from "./const/keywords.js";
-import { tokens } from "./const/tokens.js";
+import { emptyResults } from "./const/emptyResults.js";
 import { finalStates } from "./const/finalStates.js";
 import { specialCharacters } from "./const/specialCharacters.js";
 
@@ -7,7 +7,7 @@ export class Lexer {
 
   constructor(input) {
     this.input = input;
-    this.tokens = { ...tokens };
+    this.results = { ...emptyResults };
     this.currentState = "";
   }
 
@@ -25,56 +25,56 @@ export class Lexer {
   }
 
   isWhiteSpace(ch) {
-    return ch === " " || ch === "\t" || ch === "\n";
+    return ch === " " || ch === "\n" || ch === "\t" ;
   }
 
-  isKeyword(token) {
-    return keywords.includes(token);
+  isKeyword(string) {
+    return keywords.includes(string);
   }
 
-  isEmptyToken(token) {
-    return token.trim() === "";
+  isEmptyString(string) {
+    return string.trim() === "";
   }
 
   isFinalState(state) {
     return finalStates.includes(state);
   }
 
-  analyzeToken(token, finalState) {
+  analyzeString(string, finalState) {
 
-    if (this.isEmptyToken(token)) {
+    if (this.isEmptyString(string)) {
       return; 
     }
 
     if (this.isFinalState(finalState)) {
       switch (finalState) {
         case "IDENTIFIER":
-          if (this.isKeyword(token)) {
-            this.incrementInput(this.tokens, "keywords");
+          if (this.isKeyword(string)) {
+            this.incrementResults(this.results, "keywords");
           } else {
-            this.incrementInput(this.tokens, "identifiers");
+            this.incrementResults(this.results, "identifiers");
           }
           break;
         case "INTEGER":
-          this.incrementInput(this.tokens, "integers");
+          this.incrementResults(this.results, "integers");
           break;
         case "DECIMAL":
-          this.incrementInput(this.tokens, "decimalNumbers");
+          this.incrementResults(this.results, "decimalNumbers");
           break;
         case "STRING":
-          this.incrementInput(this.tokens, "string");
+          this.incrementResults(this.results, "string");
           break;
         case "DECREMENT":
-          this.incrementInput(this.tokens, "decrement");
+          this.incrementResults(this.results, "decrement");
           break;
         case "INCREMENT":
-          this.incrementInput(this.tokens, "increment");
+          this.incrementResults(this.results, "increment");
           break;
         case "MULTILINE_COMMENT":
-          this.incrementInput(this.tokens, "comment");
+          this.incrementResults(this.results, "comment");
           break;
         case "LINE_COMMENT":
-          this.incrementInput(this.tokens, "lineComment");
+          this.incrementResults(this.results, "lineComment");
           break;
 
         case "ARITHMETIC_OPERATOR_PLUS":
@@ -82,57 +82,62 @@ export class Lexer {
         case "ARITHMETIC_OPERATOR_MOD":
         case "ARITHMETIC_OPERATOR_MINUS":
         case "ARITHMETIC_OPERATOR_DIV":
-          this.incrementInput(this.tokens, "arithmeticOperators");
+          this.incrementResults(this.results, "arithmeticOperators");
           break;
         case "LOGICAL_OPERATOR_NOT":
         case "LOGICAL_OPERATOR_AND_AND":
         case "LOGICAL_OPERATOR_OR_OR":
-          this.incrementInput(this.tokens, "logicalOperators");
+          this.incrementResults(this.results, "logicalOperators");
           break;
         case "ASSIGNMENT":
-          this.incrementInput(this.tokens, "assignments");
+          this.incrementResults(this.results, "assignments");
           break;
         case "BRACE":
-          this.incrementInput(this.tokens, "braces");
+          this.incrementResults(this.results, "braces");
           break;
         case "PARENTHESIS":
-          this.incrementInput(this.tokens, "parenthesis");
+          this.incrementResults(this.results, "parenthesis");
           break;
         case "RELATIONAL_OPERATOR":
         case "RELATIONAL_OPERATOR_EQUAL":
-          this.incrementInput(this.tokens, "relationalOperators");
+          this.incrementResults(this.results, "relationalOperators");
           break;
         default:
           break;
       }
     } else {
-      this.incrementInput(this.tokens, "errors");
+      this.incrementResults(this.results, "errors");
     }
   }
 
+
   startAlgorithm() {
-    this.currentState = "START";
-    let token = "";
-    let index = 0;
-
-    while (index < this.input.length) {
-      const char = this.input[index];
-      if (this.isWhiteSpace(char)) {
-        this.analyzeToken(token, this.currentState);
-        token = "";
-        this.currentState = "START";
-      } else {
-        this.Advance(char);
-        token += char;
+      this.currentState = "START";
+      let string = "";
+      let index = 0;
+  
+      const processCurrentString = () => {
+          if (string.length > 0) {
+              this.analyzeString(string, this.currentState);
+              string = "";
+              this.currentState = "START";
+          }
+      };
+  
+      while (index < this.input.length) {
+          const char = this.input[index];
+          if (this.isWhiteSpace(char)) {
+              processCurrentString();
+          } else {
+              this.Advance(char);
+              string += char;
+          }
+          index++;
       }
-      index++;
-    }
-
-    if (token) {
-      this.analyzeToken(token, this.currentState);
-    }
-
-    return this.tokens;
+  
+      processCurrentString();
+  
+      return this.results;
   }
 
   Advance(inputChar) {
@@ -406,6 +411,8 @@ export class Lexer {
           this.currentState = "START";
         }
         break;
+
+        
   
       case "LOGICAL_OPERATOR_AND_AND":
         if (!this.isWhiteSpace(inputChar)) {
@@ -450,29 +457,29 @@ export class Lexer {
   }
   
 
-  incrementInput(tokens, tokenType) {
-    tokens[tokenType]++;
+  incrementResults(results, stringType) {
+    results[stringType]++;
   }
 
-  tokenize() {
-    const tokens = this.startAlgorithm();
+  start() {
+    const results = this.startAlgorithm();
     return `
-        Palabras reservadas : ${tokens.keywords}
-        Identificadores : ${tokens.identifiers}
-        Operadores Relacionales : ${tokens.relationalOperators}
-        Operadores Lógicos : ${tokens.logicalOperators}
-        Operadores Aritméticos : ${tokens.arithmeticOperators}
-        Asignaciones : ${tokens.assignments}
-        Número Enteros : ${tokens.integers}
-        Números Decimales : ${tokens.decimalNumbers}
-        Incremento : ${tokens.increment}
-        Decremento : ${tokens.decrement}
-        Cadena de caracteres : ${tokens.string}
-        Comentario: ${tokens.comment}
-        Comentario de Linea : ${tokens.lineComment}
-        Paréntesis : ${tokens.parenthesis}
-        Llaves : ${tokens.braces}
-        Errores : ${tokens.errors}
+        Palabras reservadas : ${results.keywords}
+        Identificadores : ${results.identifiers}
+        Operadores Relacionales : ${results.relationalOperators}
+        Operadores Lógicos : ${results.logicalOperators}
+        Operadores Aritméticos : ${results.arithmeticOperators}
+        Asignaciones : ${results.assignments}
+        Número Enteros : ${results.integers}
+        Números Decimales : ${results.decimalNumbers}
+        Incremento : ${results.increment}
+        Decremento : ${results.decrement}
+        Cadena de caracteres : ${results.string}
+        Comentario: ${results.comment}
+        Comentario de Linea : ${results.lineComment}
+        Paréntesis : ${results.parenthesis}
+        Llaves : ${results.braces}
+        Errores : ${results.errors}
         `;
   }
 }
