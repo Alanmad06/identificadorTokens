@@ -1,4 +1,26 @@
 export const specialCharacters = [
+  "<",
+  ">",
+  "=",
+  "!",
+  "&",
+  "|",
+  "+",
+  "-",
+  "*",
+  "/",
+  "%",
+  "(",
+  ")",
+  "{",
+  "}",
+  '"',
+  "/",
+  ".",
+  "_",
+];
+
+/* const specialCharacters = [
   "!",
   "@",
   "#",
@@ -32,3 +54,4 @@ export const specialCharacters = [
   "`",
   "~",
 ];
+ */

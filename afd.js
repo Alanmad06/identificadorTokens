@@ -1,7 +1,7 @@
-import { keywords } from "./keywords.js";
-import { tokens } from "./tokens.js";
-import { finalStates } from "./finalStates.js";
-import { specialCharacters } from "./specialCharacters.js";
+import { keywords } from "./const/keywords.js";
+import { tokens } from "./const/tokens.js";
+import { finalStates } from "./const/finalStates.js";
+import { specialCharacters } from "./const/specialCharacters.js";
 
 export class Lexer {
 
@@ -21,7 +21,6 @@ export class Lexer {
   }
 
   isSpecialCharacter(ch) {
-
     return specialCharacters.includes(ch);
   }
 
