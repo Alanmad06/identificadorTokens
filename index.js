@@ -22,6 +22,6 @@ function tokenizarArchivo() {
     const contenido = document.getElementById('contenido').value;
     const lexer = new Lexer(contenido);
     const tokenOutput = lexer.tokenize();
-    document.getElementById('resultado').value = tokenOutput; // Mostrar tokens en el textarea
+    document.getElementById('resultado').value = tokenOutput; 
 }
 

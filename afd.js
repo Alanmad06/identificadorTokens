@@ -1,13 +1,16 @@
 import { keywords } from "./keywords.js";
 import { tokens } from "./tokens.js";
 import { finalStates } from "./finalStates.js";
+import { specialCharacters } from "./specialCharacters.js";
 
 export class Lexer {
+
   constructor(input) {
     this.input = input;
     this.tokens = { ...tokens };
     this.currentState = "";
   }
+
 
   isAlpha(ch) {
     return (ch >= "a" && ch <= "z") || (ch >= "A" && ch <= "Z");
@@ -18,7 +21,8 @@ export class Lexer {
   }
 
   isSpecialCharacter(ch) {
-    return !this.isAlpha(ch) && !this.isNumber(ch);
+
+    return specialCharacters.includes(ch);
   }
 
   isWhiteSpace(ch) {
@@ -29,12 +33,19 @@ export class Lexer {
     return keywords.includes(token);
   }
 
+  isEmptyToken(token) {
+    return token.trim() === "";
+  }
+
   isFinalState(state) {
     return finalStates.includes(state);
   }
 
   analyzeToken(token, finalState) {
-    if (token.trim() === "") return;
+
+    if (this.isEmptyToken(token)) {
+      return; 
+    }
 
     if (this.isFinalState(finalState)) {
       switch (finalState) {

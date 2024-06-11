@@ -1,7 +1,7 @@
 export const finalStates = [
     "IDENTIFIER", 
-    "INCREMENT",
-    "DECREMENT",
+    "INCREMENT", // ++
+    "DECREMENT", // --
     "INTEGER",
     "DECIMAL",
     "MULTILINE_COMMENT", // /* */
@@ -17,7 +17,7 @@ export const finalStates = [
     "LOGICAL_OPERATOR_NOT",  // !=
     "LOGICAL_OPERATOR_AND_AND", // &&
     "LOGICAL_OPERATOR_OR_OR", // ||
-    "BRACE", 
-    "PARENTHESIS",
-    "STRING",
+    "BRACE", // {}
+    "PARENTHESIS", // ()
+    "STRING", // ""
   ]
